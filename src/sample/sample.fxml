@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.SplitPane?>
+<?import javafx.scene.control.TabPane?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.control.TreeView?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Pane?>
+<?import javafx.scene.layout.VBox?>
+
+<VBox prefHeight="600.0" prefWidth="900.0" xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1" fx:controller="sample.Controller">
+  <children>
+    <SplitPane dividerPositions="0.5" focusTraversable="true" prefHeight="-1.0" prefWidth="-1.0" VBox.vgrow="ALWAYS">
+      <items>
+        <AnchorPane prefHeight="576.0" prefWidth="306.0">
+               <children>
+                  <TreeView fx:id="treeView" layoutX="1.0" layoutY="61.0" onMouseClicked="#fileClick" prefHeight="515.0" prefWidth="446.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="1.0" AnchorPane.rightAnchor="-1.0" AnchorPane.topAnchor="61.0" />
+                  <TextField fx:id="findField" layoutX="11.0" layoutY="26.0" prefHeight="25.0" prefWidth="192.0" AnchorPane.leftAnchor="11.0" AnchorPane.rightAnchor="243.0" />
+                  <TextField fx:id="extField" layoutX="223.0" layoutY="26.0" prefHeight="25.0" prefWidth="58.0" text=".log" AnchorPane.rightAnchor="165.0" />
+                  <Button fx:id="findButton" layoutX="296.0" layoutY="26.0" mnemonicParsing="false" onAction="#Search" prefHeight="25.0" prefWidth="58.0" text="Search" AnchorPane.rightAnchor="92.0" />
+                  <Button fx:id="btnFile" layoutX="372.0" layoutY="26.0" mnemonicParsing="false" onAction="#loadRoot" text="Directory" AnchorPane.rightAnchor="10.0" />
+                  <Label layoutX="11.0" layoutY="6.0" text="filter" AnchorPane.leftAnchor="11.0" />
+                  <Label layoutX="227.0" layoutY="6.0" text="extension" AnchorPane.rightAnchor="168.0" />
+               </children>
+        </AnchorPane>
+        <AnchorPane prefHeight="551.0" prefWidth="515.0">
+               <children>
+                  <TabPane fx:id="tabPane" layoutY="61.0" prefHeight="515.0" prefWidth="446.0" tabClosingPolicy="ALL_TABS" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="61.0" />
+                  <Button fx:id="btnDown" layoutX="324.0" layoutY="25.0" mnemonicParsing="false" onAction="#Down" text="Down" AnchorPane.rightAnchor="75.0" />
+                  <Button fx:id="btnUp" layoutX="399.0" layoutY="25.0" mnemonicParsing="false" onAction="#Up" prefHeight="25.0" prefWidth="47.0" text="Up" AnchorPane.rightAnchor="10.0" />
+               </children>
+        </AnchorPane>
+      </items>
+    </SplitPane>
+    <HBox id="HBox" alignment="CENTER_LEFT" spacing="5.0" VBox.vgrow="NEVER">
+      <children>
+        <Pane prefHeight="-1.0" prefWidth="-1.0" HBox.hgrow="ALWAYS" />
+      </children>
+      <padding>
+        <Insets bottom="3.0" left="3.0" right="3.0" top="3.0" />
+      </padding>
+    </HBox>
+  </children>
+</VBox>
