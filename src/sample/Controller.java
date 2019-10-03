@@ -14,13 +14,12 @@ import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Scanner;
+import java.util.*;
 import java.util.function.Function;
 
 public class Controller {
+
+    static boolean delete = true;
 
     public String ROOT_FOLDER = "";
 
@@ -28,7 +27,10 @@ public class Controller {
     TreeView<FilePath> treeView;
 
     TreeItem<FilePath> rootTreeItem;
+    TreeItem<FilePath> rootTreeItemDoubles;
     TreeItem<FilePath> filteredRoot;
+
+    static Map<String,List<String>> map = new HashMap<>();
 
     List<TabInfo> tabs = new ArrayList<>();
 
@@ -46,6 +48,10 @@ public class Controller {
     TextField extField;
     @FXML
     Button findButton;
+    @FXML
+    Button searchUnusedBtn;
+    @FXML
+    Button deleteBtn;
         //Обьект, содержащий методы котороля закладок открытых файлов
     TabControler tabControler = new TabControler();
     //кнопка загрузки корневой папки
@@ -122,6 +128,24 @@ public class Controller {
                 fileFilterChanged(findField.getText());
         }
     }
+    @FXML
+    void searchDoubles() throws IOException {
+        if(!ROOT_FOLDER.equals("")) {
+            //создает дерево и фильтрует его
+            createTree();
+            treeView.setRoot(rootTreeItem);
+            filterChanged(".properties");
+                fileFilterChangedDoubles();
+        }
+    }
+    @FXML
+    void removeDoubles(){
+        for (Map.Entry<String, List<String>> m : map.entrySet()) {
+            for (String line : m.getValue()){
+                removeLineFromFile(line,m.getKey());
+            }
+        }
+    }
     //кнопка добавления новой вкладки
     @FXML
     void addTable(FilePath path, String filter) throws IOException {
@@ -131,7 +155,7 @@ public class Controller {
         //добавляет название вкладки
         tab.setText(path.text);
         //добавляет на вкладку обьект listView в котором можно пролистывать файл
-        tab.setContent(TabControler.getList(path.path.toString(),filter,tabInfo));
+        tab.setContent(TabControler.getList(path.path.toString(), filter, tabInfo, map));
         tabPane.getTabs().add(tab);
         //делает только что открытую вкладку активной
         tabPane.getSelectionModel().select(tab);
@@ -173,6 +197,43 @@ public class Controller {
 
         }
     }
+    public void fileFilterDoubles(TreeItem<FilePath> root, TreeItem<FilePath> filteredRoot) throws IOException {
+
+        for (TreeItem<FilePath> child : root.getChildren()) {
+
+            TreeItem<FilePath> filteredChild = new TreeItem<>( child.getValue());
+            filteredChild.setExpanded(true);
+
+            fileFilterDoubles(child, filteredChild);
+
+            if (!filteredChild.getChildren().isEmpty()){
+                filteredRoot.getChildren().add(filteredChild);
+            }
+            else if (isExt(filteredChild.getValue(), ".properties") && fileMatcherBuff(filteredChild.getValue().getPath().toString(),filteredRoot,root)) {
+                filteredRoot.getChildren().add(filteredChild);
+            }
+
+        }
+    }
+
+    public boolean fileFilterKnowProperty(TreeItem<FilePath> root, String filter, TreeItem<FilePath> filteredRoot) {
+
+        for (TreeItem<FilePath> child : root.getChildren()) {
+
+            TreeItem<FilePath> filteredChild = new TreeItem<>( child.getValue());
+            filteredChild.setExpanded(true);
+
+            boolean b = fileFilterKnowProperty(child, filter, filteredChild);
+
+            if (!filteredChild.getChildren().isEmpty()){
+                if(b) return true;
+            }
+            else if (b || (isExt(filteredChild.getValue(), ".java") && fileMatcher(filteredChild.getValue().getPath().toString(), filter))) {
+                return true;
+            }
+        }
+        return false;
+    }
 
     //проверка расширения файла
     public boolean isExt(FilePath value, String extension) {
@@ -202,7 +263,44 @@ public class Controller {
             }
         }));
     }
+
     public static void createTree(TreeItem<FilePath> rootItem) throws IOException {
+
+        try (DirectoryStream<Path> directoryStream = Files.newDirectoryStream(rootItem.getValue().getPath())) {
+
+            for (Path path : directoryStream) {
+
+                TreeItem<FilePath> newItem = new TreeItem<FilePath>( new FilePath( path));
+                newItem.setExpanded(true);
+
+                rootItem.getChildren().add(newItem);
+
+                if (Files.isDirectory(path)) {
+                    createTree(newItem);
+                }
+            }
+        }
+        catch( Exception ex) {
+            ex.printStackTrace();
+        }
+    }
+    public void createTreeDoubled() throws IOException {
+
+        // create root
+        rootTreeItemDoubles = createTreeRoot();
+
+        // create tree structure recursively
+        createTreeDoubled(rootTreeItemDoubles);
+
+        // sort tree structure by name
+        rootTreeItemDoubles.getChildren().sort( Comparator.comparing(new Function<TreeItem<FilePath>, String>() {
+            @Override
+            public String apply(TreeItem<FilePath> t) {
+                return t.getValue().toString().toLowerCase();
+            }
+        }));
+    }
+    public static void createTreeDoubled(TreeItem<FilePath> rootItem) throws IOException {
 
         try (DirectoryStream<Path> directoryStream = Files.newDirectoryStream(rootItem.getValue().getPath())) {
 
@@ -255,6 +353,116 @@ public class Controller {
         }
         return false;
     }
+//    public boolean fileMatcherBuff(String path, TreeItem<FilePath> filteredRoot, TreeItem<FilePath> root){
+//        FileInputStream inputStream = null;
+//        BufferedReader reader = null;
+//        String filetext = "";
+//        try {
+//            inputStream = new FileInputStream(path);
+//            reader = new BufferedReader(new InputStreamReader(inputStream, "UTF-8"));
+//            String s;
+//            while ((s = reader.readLine()) != null) {
+//                String s2 = s.substring(0,s.indexOf("="));
+//                s2 = s2.trim();
+//                createTreeDoubled();
+//                if(!fileFilterKnowProperty(rootTreeItemDoubles,s2,filteredRoot)){
+//                    return true;
+//                }
+//            }
+//        } catch (FileNotFoundException e) {
+//            e.printStackTrace();
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//        }
+//        return false;
+//    }
+    public boolean fileMatcherBuff(String path, TreeItem<FilePath> filteredRoot, TreeItem<FilePath> root) throws IOException {
+            map.put(path, new ArrayList<>());
+            boolean b = false;
+            FileInputStream inputStream = null;
+            Scanner sc = null;
+            inputStream = new FileInputStream(path);
+            sc = new Scanner(inputStream, "UTF-8");
+            while (sc.hasNext()) {
+                String line = sc.nextLine();
+                if(line.isEmpty()) continue;
+                String filetext = line.substring(0, line.indexOf("="));
+                filetext = filetext.trim();
+                createTreeDoubled();
+                if (!fileFilterKnowProperty(rootTreeItemDoubles, filetext, filteredRoot)) {
+                    b = true;
+                    map.get(path).add(line);
+
+                }
+                if (sc.ioException() != null) {
+                    throw sc.ioException();
+                }
+            }
+            if (!b)
+                map.remove(path);
+            return b;
+    }
+    public static void removeLineFromFile(String lineToRemove, String file) {
+
+        try {
+
+            File inFile = new File(file);
+
+            if (!inFile.isFile()) {
+                System.out.println("Parameter is not an existing file");
+                return;
+            }
+
+            // Construct the new file that will later be renamed to the original
+            // filename.
+            File tempFile = new File(inFile.getAbsolutePath() + ".tmp");
+
+            BufferedReader br = new BufferedReader(new FileReader(file));
+            PrintWriter pw = new PrintWriter(new FileWriter(tempFile));
+
+            String line = null;
+
+            // Read from the original file and write to the new
+            // unless content matches data to be removed.
+            while ((line = br.readLine()) != null) {
+
+                if (!line.trim().equals(lineToRemove)) {
+
+                    pw.println(line);
+                    pw.flush();
+                }
+            }
+            pw.close();
+            br.close();
+
+            // Delete the original file
+            if (!inFile.delete()) {
+                System.out.println("Could not delete file");
+                return;
+            }
+
+            // Rename the new file to the filename the original file had.
+            if (!tempFile.renameTo(inFile))
+                System.out.println("Could not rename file");
+
+        } catch (FileNotFoundException ex) {
+            ex.printStackTrace();
+        } catch (IOException ex) {
+            ex.printStackTrace();
+        }
+    }
+
+    private static boolean hasNextLine(Scanner scanner) {
+        return scanner.hasNext() || scanner.hasNextLine();
+    }
+
+    private static String nextLine(Scanner scanner) {
+        if (scanner.hasNext()) {
+            return scanner.next();
+        }
+        return scanner.nextLine();
+    }
+
     //смена текущего отображения структуры папок на фильтрованное по расширению файла
     private void filterChanged(String filter) {
         if (filter.isEmpty()) {
@@ -278,5 +486,11 @@ public class Controller {
             fileFilter(filteredRoot, filter, fileFilteredRoot);
             treeView.setRoot(fileFilteredRoot);
         }
+    }
+    private void fileFilterChangedDoubles() throws IOException {
+            //берет дерево фильтрованное по расширению и фильтрует его по совпадению в файлах
+            TreeItem<FilePath> fileFilteredRoot = createTreeRoot();
+            fileFilterDoubles(filteredRoot, fileFilteredRoot);
+            treeView.setRoot(fileFilteredRoot);
     }
 }

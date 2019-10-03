@@ -18,18 +18,20 @@
       <items>
         <AnchorPane prefHeight="576.0" prefWidth="306.0">
                <children>
-                  <TreeView fx:id="treeView" layoutX="1.0" layoutY="61.0" onMouseClicked="#fileClick" prefHeight="515.0" prefWidth="446.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="1.0" AnchorPane.rightAnchor="-1.0" AnchorPane.topAnchor="61.0" />
+                  <TreeView fx:id="treeView" layoutX="1.0" layoutY="90.0" onMouseClicked="#fileClick" prefHeight="502.0" prefWidth="446.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="1.0" AnchorPane.rightAnchor="-1.0" AnchorPane.topAnchor="90.0" />
                   <TextField fx:id="findField" layoutX="11.0" layoutY="26.0" prefHeight="25.0" prefWidth="192.0" AnchorPane.leftAnchor="11.0" AnchorPane.rightAnchor="243.0" />
                   <TextField fx:id="extField" layoutX="223.0" layoutY="26.0" prefHeight="25.0" prefWidth="58.0" text=".log" AnchorPane.rightAnchor="165.0" />
                   <Button fx:id="findButton" layoutX="296.0" layoutY="26.0" mnemonicParsing="false" onAction="#Search" prefHeight="25.0" prefWidth="58.0" text="Search" AnchorPane.rightAnchor="92.0" />
                   <Button fx:id="btnFile" layoutX="372.0" layoutY="26.0" mnemonicParsing="false" onAction="#loadRoot" text="Directory" AnchorPane.rightAnchor="10.0" />
                   <Label layoutX="11.0" layoutY="6.0" text="filter" AnchorPane.leftAnchor="11.0" />
                   <Label layoutX="227.0" layoutY="6.0" text="extension" AnchorPane.rightAnchor="168.0" />
+                  <Button fx:id="searchUnusedBtn" layoutX="247.0" layoutY="58.0" mnemonicParsing="false" onAction="#searchDoubles" prefHeight="25.0" prefWidth="107.0" text="search unused" />
+                  <Button fx:id="deleteBtn" layoutX="371.0" layoutY="58.0" mnemonicParsing="false" onAction="#removeDoubles" prefHeight="25.0" prefWidth="65.0" text="delete" />
                </children>
         </AnchorPane>
         <AnchorPane prefHeight="551.0" prefWidth="515.0">
                <children>
-                  <TabPane fx:id="tabPane" layoutY="61.0" prefHeight="515.0" prefWidth="446.0" tabClosingPolicy="ALL_TABS" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="61.0" />
+                  <TabPane fx:id="tabPane" layoutY="90.0" prefHeight="502.0" prefWidth="446.0" tabClosingPolicy="ALL_TABS" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="90.0" />
                   <Button fx:id="btnDown" layoutX="324.0" layoutY="25.0" mnemonicParsing="false" onAction="#Down" text="Down" AnchorPane.rightAnchor="75.0" />
                   <Button fx:id="btnUp" layoutX="399.0" layoutY="25.0" mnemonicParsing="false" onAction="#Up" prefHeight="25.0" prefWidth="47.0" text="Up" AnchorPane.rightAnchor="10.0" />
                </children>
